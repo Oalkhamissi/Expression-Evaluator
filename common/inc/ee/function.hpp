@@ -72,83 +72,131 @@ the program(s) have been supplied.
 #include <ee/integer.hpp>
 #include <vector>
 
+
 /*! Function token base class. */
-class Function : public Operation { };
+class Function : public Operation {
+public:
+    // Declare the evaluate function to allow derived classes to override it
+    virtual Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const {
+        throw std::runtime_error("Evaluate not implemented for this function.");
+    }
+};
 
-		/*! One argument function token base class. */
-		class OneArgFunction : public Function {
-		public:
-			[[nodiscard]] virtual unsigned number_of_args() const override { return 1; }
-		};
+        /*! One argument function token base class. */
+        class OneArgFunction : public Function {
+        public:
+            [[nodiscard]] virtual unsigned number_of_args() const override { return 1; }
+        };
 
-				/*! Absolute value function token. */
-				class Abs : public OneArgFunction {	};
+                /*! Absolute value function token. */
+                class Abs : public OneArgFunction {
+                public:
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! arc cosine function token. */
-				class Arccos : public OneArgFunction { };
+                /*! Arc cosine function token. */
+                class Arccos : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! arc sine function token. */
-				class Arcsin : public OneArgFunction { };
+                /*! Arc sine function token. */
+                class Arcsin : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! arc tangent function token.  Argument is the slope. */
-				class Arctan : public OneArgFunction { };
+                /*! Arc tangent function token. Argument is the slope. */
+                class Arctan : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! ceil function token. */
-				class Ceil : public OneArgFunction { };
+                /*! Ceil function token. */
+                class Ceil : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! cosine function token. */
-				class Cos : public OneArgFunction { };
+                /*! Cosine function token. */
+                class Cos : public OneArgFunction { 
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! exponential function token.  pow(e,x), where 'e' is the euler constant and 'x' is the exponent. */
-				class Exp : public OneArgFunction { };
+                /*! Exponential function token. pow(e,x), where 'e' is the euler constant and 'x' is the exponent. */
+                class Exp : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! floor function token. */
-				class Floor : public OneArgFunction { };
+                /*! Floor function token. */
+                class Floor : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! logarithm base 2 function token. */
-				class Lb : public OneArgFunction { };
+                /*! Logarithm base 2 function token. */
+                class Lb : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! natural logarithm function token. */
-				class Ln : public OneArgFunction { };
+                /*! Natural logarithm function token. */
+                class Ln : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! logarithm base 10 function token. */
-				class Log : public OneArgFunction { };
+                /*! Logarithm base 10 function token. */
+                class Log : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! previous result token. Argument is the 1-base index of the result. */
-				class Result : public OneArgFunction { };
+                /*! Previous result token. Argument is the 1-base index of the result. */
+                class Result : public OneArgFunction {
+                    
+                };
 
-				/*! sine function token. */
-				class Sin : public OneArgFunction { };
+                /*! Sine function token. */
+                class Sin : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! Square root token. */
-				class Sqrt : public OneArgFunction { };
+                /*! Square root token. */
+                class Sqrt : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
-				/*! tangeant function. */
-				class Tan : public OneArgFunction { };
-
-
-		/*!	Two argument function token base class. */
-		class TwoArgFunction : public Function {
-		public:
-			[[nodiscard]] virtual unsigned number_of_args() const override { return 2; }
-		};
-
-				/*! 2 parameter arc tangent function token.
-					First argument is the change in Y, second argument is the change in X. */
-				class Arctan2 : public TwoArgFunction { };
-
-				/*! Maximum of 2 elements function token. */
-				class Max : public TwoArgFunction { };
-
-				/*! Minimum of 2 elements function token. */
-				class Min : public TwoArgFunction { };
-
-				/*! Pow function token.  First argument is the base, second the exponent. */
-				class Pow : public TwoArgFunction { };
+                /*! Tangent function. */
+                class Tan : public OneArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
 
 
-		/*!	Three argument function token base class. */
-		class ThreeArgFunction : public Function {
-		public:
-			virtual unsigned number_of_args() const override { return 3; }
-		};
+        /*! Two argument function token base class. */
+        class TwoArgFunction : public Function {
+        public:
+            [[nodiscard]] virtual unsigned number_of_args() const override { return 2; }
+        };
+
+                /*! 2-parameter arc tangent function token.
+                    First argument is the change in Y, second argument is the change in X. */
+                class Arctan2 : public TwoArgFunction {
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
+
+                /*! Maximum of 2 elements function token. */
+                class Max : public TwoArgFunction {
+                public:
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
+
+                /*! Minimum of 2 elements function token. */
+                class Min : public TwoArgFunction {
+                public:
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
+
+                /*! Pow function token. First argument is the base, second is the exponent. */
+                class Pow : public TwoArgFunction {
+                public:
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
+                };
+
+        /*! Three argument function token base class. */
+        class ThreeArgFunction : public Function {
+        public:
+            virtual unsigned number_of_args() const override { return 3; }
+        };

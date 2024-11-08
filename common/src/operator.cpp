@@ -88,10 +88,9 @@ Operand::pointer_type Division::evaluate(std::vector<Operand::pointer_type> cons
 
 // Factorial Operator
 Operand::pointer_type Factorial::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 1);  // Factorial is a unary operator
+    assert(operands.size() == 1); 
     auto operand = convert<Integer>(operands[0]);
 
-    // Implement factorial logic here
     Integer::value_type result = 1;
     for (Integer::value_type i = 1; i <= operand->value(); ++i) {
         result *= i;
@@ -268,16 +267,32 @@ Operand::pointer_type Modulus::evaluate(std::vector<Operand::pointer_type> const
 
 // Power Operator
 Operand::pointer_type Power::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2); // Ensure exactly two operands for exponentiation
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
+    assert(operands.size() == 2);
 
-    // Ensure that rhs->value() is non-negative to avoid unexpected behavior
-    if (rhs->value() < 0) {
-        throw std::runtime_error("Negative exponent not supported for integer power operation.");
+    if (auto lhs_int = std::dynamic_pointer_cast<Integer>(operands[0])) {
+        if (auto rhs_int = std::dynamic_pointer_cast<Integer>(operands[1])) {
+            // Integer exponentiation
+            Integer::value_type result = boost::multiprecision::pow(lhs_int->value(), static_cast<unsigned int>(rhs_int->value()));
+            return std::make_shared<Integer>(result);
+        }
+        else if (auto rhs_real = std::dynamic_pointer_cast<Real>(operands[1])) {
+            // Mixed Integer base and Real exponent
+            Real::value_type result = boost::multiprecision::pow(static_cast<Real::value_type>(lhs_int->value()), rhs_real->value());
+            return std::make_shared<Real>(result);
+        }
+    }
+    else if (auto lhs_real = std::dynamic_pointer_cast<Real>(operands[0])) {
+        if (auto rhs_int = std::dynamic_pointer_cast<Integer>(operands[1])) {
+            // Real base and Integer exponent
+            Real::value_type result = boost::multiprecision::pow(lhs_real->value(), static_cast<Real::value_type>(rhs_int->value()));
+            return std::make_shared<Real>(result);
+        }
+        else if (auto rhs_real = std::dynamic_pointer_cast<Real>(operands[1])) {
+            // Real exponentiation
+            Real::value_type result = boost::multiprecision::pow(lhs_real->value(), rhs_real->value());
+            return std::make_shared<Real>(result);
+        }
     }
 
-    // Cast rhs->value() to unsigned int to be compatible with boost::multiprecision::pow
-    Integer::value_type result = boost::multiprecision::pow(lhs->value(), static_cast<unsigned int>(rhs->value()));
-    return std::static_pointer_cast<Operand>(make<Integer>(result));
+    throw std::runtime_error("Unsupported operand types for Power operator");
 }

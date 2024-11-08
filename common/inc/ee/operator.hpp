@@ -110,7 +110,9 @@ public:
 	DEF_POINTER_TYPE(Operator)
 	[[nodiscard]] virtual Precedence precedence() const = 0;
 
-	virtual Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const = 0;
+	virtual Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const {
+		throw std::runtime_error("Evaluate not implemented for this Real type.");
+	}
 };
 
 		/*! Binary operator token base class. */

@@ -1,36 +1,4 @@
-﻿  boolean.cpp
-  expression_evaluator.cpp
-  function.cpp
-  integer.cpp
-  operand.cpp
-  operation.cpp
+﻿  RPNEvaluator.cpp
   operator.cpp
-  parser.cpp
-  real.cpp
-  RPNEvaluator.cpp
-  token.cpp
-  tokenizer.cpp
-  variable.cpp
-  ConsoleApp.cpp
-  TestApp.cpp
-  TestApp_execute.cpp
-  ConsoleCore.cpp
-  ConsoleEnhanced.cpp
-  XError.cpp
-  marker_00_framework.cpp
-  Generating Code...
-  Compiling...
-  marker_01_integer.cpp
-  marker_02_integer_unary.cpp
-  marker_03_integer_binary.cpp
-  marker_04_integer_right_associative.cpp
-  marker_05_integer_parenthesis.cpp
-  marker_06_integer_function.cpp
-  marker_07_real.cpp
-  marker_08_mixed.cpp
-  marker_09_boolean.cpp
-  marker_10_relational.cpp
-  marker_11_integer_variable.cpp
-  marker_12_result.cpp
   Generating Code...
   AutoMarker.vcxproj -> C:\Users\Omar Alkhamissi\Desktop\ee24 (student)\x64\Debug\AutoMarker.exe

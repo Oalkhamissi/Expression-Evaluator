@@ -56,7 +56,35 @@ using namespace std;
 
 
 
+// Convert Integer value to a string for display
 [[nodiscard]] Integer::string_type Integer::str() const {
-	return value().str();
+    return value().str();
 }
 
+// Factorial function implementation
+Integer::value_type Integer::factorial(value_type n) {
+    if (n < 0) {
+        throw std::runtime_error("Factorial is not defined for negative integers.");
+    }
+    value_type result = 1;
+    for (value_type i = 1; i <= n; ++i) {
+        result *= i;
+    }
+    return result;
+}
+
+// Power function implementation
+Integer::value_type Integer::power(value_type base, value_type exponent) {
+    if (exponent < 0) {
+        throw std::runtime_error("Power with negative exponent is not supported for integers.");
+    }
+    value_type result = 1;
+    while (exponent > 0) {
+        if (exponent % 2 == 1) {
+            result *= base;
+        }
+        base *= base;
+        exponent /= 2;
+    }
+    return result;
+}
