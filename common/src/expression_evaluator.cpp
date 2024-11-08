@@ -31,31 +31,36 @@ the program(s) have been supplied.
 #include <ee/tokenizer.hpp>
 #include <ee/parser.hpp>
 #include <ee/RPNEvaluator.hpp>
+#include <ee/operator.hpp>
 #include <ee/function.hpp>
 
 #if defined(SHOW_STEPS)
 #include <iostream>
 #endif
 
-[[nodiscard]] ExpressionEvaluator::result_type ExpressionEvaluator::evaluate( ExpressionEvaluator::expression_type const& expr ) {
-	TokenList infixTokens = tokenizer_m.tokenize(expr);
+[[nodiscard]] ExpressionEvaluator::result_type ExpressionEvaluator::evaluate(ExpressionEvaluator::expression_type const& expr) {
+    TokenList infixTokens = tokenizer_m.tokenize(expr);
+
 #if defined(SHOW_STEPS)
-	{ using namespace std;
-	cout << "Lexer output" << endl;
-	copy(infixTokens.begin(), infixTokens.end(), ostream_iterator<Token::pointer_type>(cout, " "));
-	std::cout << std::endl;
-	}
+    {
+        std::cout << "Lexer output:" << std::endl;
+        for (const auto& token : infixTokens)
+            std::cout << token->str() << " ";
+        std::cout << std::endl;
+    }
 #endif
 
-	TokenList postfixTokens = parser_m.parse(infixTokens);
+    TokenList postfixTokens = parser_m.parse(infixTokens);
+
 #if defined(SHOW_STEPS)
-	{ using namespace std;
-	cout << "Parser output" << endl;
-	copy(postfixTokens.begin(), postfixTokens.end(), ostream_iterator<Token::pointer_type>(cout, " "));
-	std::cout << std::endl;
-	}
+    {
+        std::cout << "Parser output (RPN):" << std::endl;
+        for (const auto& token : postfixTokens)
+            std::cout << token->str() << " ";
+        std::cout << std::endl;
+    }
 #endif
 
-	Operand::pointer_type result = rpn_m.evaluate(postfixTokens);
-	return result;
+    Operand::pointer_type result = rpn_m.evaluate(postfixTokens);
+    return result;
 }

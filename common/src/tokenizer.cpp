@@ -177,59 +177,70 @@ TokenList Tokenizer::tokenize(string_type const& expression) {
 	TokenList tokenizedExpression;
 	auto currentChar = expression.cbegin();
 
-	for(;;)
+	for (;;)
 	{
-		// strip whitespace
+		// Strip whitespace
 		while (currentChar != end(expression) && isspace(*currentChar))
 			++currentChar;
 
-		// check of end of expression
+		// Check for the end of expression
 		if (currentChar == end(expression)) break;
 
-		// check for a number
+		// Check for a number
 		if (isdigit(*currentChar)) {
 			tokenizedExpression.push_back(_get_number(currentChar, expression));
 			continue;
 		}
 
-		// check for 2-character operators
-#define CHECK_2OP( symbol1, symbol2, token )\
-		if( *currentChar == symbol1 ) {\
-			auto nextChar = next(currentChar);\
-			if( nextChar != end(expression) && *nextChar == symbol2 ) {\
-				currentChar = next(nextChar);\
-				tokenizedExpression.push_back( make<token>() );\
-				continue;\
-			}\
-		}
+		// Check for 2-character operators
+#define CHECK_2OP(symbol1, symbol2, token) \
+        if (*currentChar == symbol1) { \
+            auto nextChar = next(currentChar); \
+            if (nextChar != end(expression) && *nextChar == symbol2) { \
+                currentChar = next(nextChar); \
+                tokenizedExpression.push_back(make<token>()); \
+                continue; \
+            } \
+        }
 		CHECK_2OP('<', '=', LessEqual)
-		CHECK_2OP('>', '=', GreaterEqual)
-		CHECK_2OP('=', '=', Equality)
-		CHECK_2OP('!', '=', Inequality)
-		CHECK_2OP('*', '*', Power)
+			CHECK_2OP('>', '=', GreaterEqual)
+			CHECK_2OP('=', '=', Equality)
+			CHECK_2OP('!', '=', Inequality)
+			CHECK_2OP('*', '*', Power)
 #undef CHECK_2OP
 
-			// check for 1-character operators
-#define CHECK_OP(symbol, token)\
-		if( *currentChar == symbol ) {\
-			++currentChar;\
-			tokenizedExpression.push_back( make<token>() );\
-			continue;\
-		}
-		CHECK_OP('*', Multiplication)
-		CHECK_OP('/', Division)
-		CHECK_OP('%', Modulus)
-		CHECK_OP('(', LeftParenthesis)
-		CHECK_OP(')', RightParenthesis)
-		CHECK_OP(',', ArgumentSeparator)
-		CHECK_OP('<', Less)
-		CHECK_OP('>', Greater)
-		CHECK_OP('!', Factorial)
-		CHECK_OP('=', Assignment)
+			// Check for 1-character operators (excluding `!` for factorial)
+#define CHECK_OP(symbol, token) \
+        if (*currentChar == symbol) { \
+            ++currentChar; \
+            tokenizedExpression.push_back(make<token>()); \
+            continue; \
+        }
+			CHECK_OP('*', Multiplication)
+			CHECK_OP('/', Division)
+			CHECK_OP('%', Modulus)
+			CHECK_OP('(', LeftParenthesis)
+			CHECK_OP(')', RightParenthesis)
+			CHECK_OP(',', ArgumentSeparator)
+			CHECK_OP('<', Less)
+			CHECK_OP('>', Greater)
+			CHECK_OP('=', Assignment)
 #undef CHECK_OP
 
+			// Check for factorial `!` as a postfix operator
+			if (*currentChar == '!') {
+				if (!tokenizedExpression.empty() &&
+					(is<Operand>(tokenizedExpression.back()) || is<PostfixOperator>(tokenizedExpression.back()) || is<RightParenthesis>(tokenizedExpression.back()))) {
+					tokenizedExpression.push_back(make<Factorial>());
+					++currentChar;
+					continue;
+				}
+				else {
+					throw XBadCharacter(expression, currentChar - begin(expression));
+				}
+			}
 
-		// check for multi-purpose operators
+		// Handle multi-purpose operators for `+` and `-`
 		if (*currentChar == '+') {
 			++currentChar;
 			if (!tokenizedExpression.empty() &&
@@ -241,6 +252,7 @@ TokenList Tokenizer::tokenize(string_type const& expression) {
 				tokenizedExpression.push_back(make<Identity>());
 			continue;
 		}
+
 		if (*currentChar == '-') {
 			++currentChar;
 			if (!tokenizedExpression.empty() &&
@@ -253,14 +265,13 @@ TokenList Tokenizer::tokenize(string_type const& expression) {
 			continue;
 		}
 
-
 		// Identifiers
 		if (isalpha(*currentChar)) {
 			tokenizedExpression.push_back(_get_identifier(currentChar, expression));
 			continue;
 		}
 
-		// not a recognized token
+		// Not a recognized token
 		throw XBadCharacter(expression, currentChar - begin(expression));
 	}
 

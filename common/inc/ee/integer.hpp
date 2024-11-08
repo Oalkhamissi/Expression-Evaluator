@@ -50,10 +50,9 @@ stipulated in the agreement/contract under which
 the program(s) have been supplied.
 =============================================================*/
 
+#pragma once
 #include <ee/operand.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
-
-
 
 /*! Integer token. */
 class Integer : public Operand {
@@ -61,11 +60,14 @@ public:
 	using value_type = boost::multiprecision::cpp_int;
 	DEF_POINTER_TYPE(Integer)
 private:
-	value_type	value_;
+	value_type value_;
 public:
-	Integer( value_type value = 0 )
-		: value_( value ) { }
+	Integer(value_type value = 0) : value_(value) { }
 
-	[[nodiscard]]	value_type	value() const { return value_; }
-	[[nodiscard]]	string_type	str() const override;
+	[[nodiscard]] value_type value() const { return value_; }
+	[[nodiscard]] string_type str() const override;
+
+	// Static methods for factorial and power calculations
+	static value_type factorial(value_type n);
+	static value_type power(value_type base, value_type exponent);
 };
