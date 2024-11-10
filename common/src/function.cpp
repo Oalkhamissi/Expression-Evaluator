@@ -46,6 +46,7 @@ the program(s) have been supplied.
 #include <ee/function.hpp>
 #include <ee/integer.hpp>
 #include <ee/real.hpp>
+#include <ee/expression_evaluator.hpp>
 #include <algorithm>
 #include <cmath>
 #include <boost/multiprecision/cpp_int.hpp>
@@ -54,17 +55,68 @@ the program(s) have been supplied.
 
 // Max function implementation
 Operand::pointer_type Max::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0])->value();
-    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1])->value();
-    return std::make_shared<Integer>(std::max(lhs, rhs));
+    auto left = operands[0];
+    auto right = operands[1];
+
+    if (auto leftInt = std::dynamic_pointer_cast<Integer>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Integer, Integer -> Integer
+            return std::static_pointer_cast<Operand>(
+                make<Integer>(std::max(leftInt->value(), rightInt->value())));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Integer, Real -> Real
+            return std::static_pointer_cast<Operand>(
+                make<Real>(std::max(Real::value_type(leftInt->value()), rightReal->value())));
+        }
+    }
+    else if (auto leftReal = std::dynamic_pointer_cast<Real>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Real, Integer -> Real
+            return std::static_pointer_cast<Operand>(
+                make<Real>(std::max(leftReal->value(), Real::value_type(rightInt->value()))));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Real, Real -> Real
+            return std::static_pointer_cast<Operand>(
+                make<Real>(std::max(leftReal->value(), rightReal->value())));
+        }
+    }
+    throw std::runtime_error("Invalid operand types for Max function");
 }
 
 // Min function implementation
 Operand::pointer_type Min::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0])->value();
-    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1])->value();
-    return std::make_shared<Integer>(std::min(lhs, rhs));
+    auto left = operands[0];
+    auto right = operands[1];
+
+    if (auto leftInt = std::dynamic_pointer_cast<Integer>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Integer, Integer -> Integer
+            return std::static_pointer_cast<Operand>(
+                make<Integer>(std::min(leftInt->value(), rightInt->value())));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Integer, Real -> Real
+            return std::static_pointer_cast<Operand>(
+                make<Real>(std::min(Real::value_type(leftInt->value()), rightReal->value())));
+        }
+    }
+    else if (auto leftReal = std::dynamic_pointer_cast<Real>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Real, Integer -> Real
+            return std::static_pointer_cast<Operand>(
+                make<Real>(std::min(leftReal->value(), Real::value_type(rightInt->value()))));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Real, Real -> Real
+            return std::static_pointer_cast<Operand>(
+                make<Real>(std::min(leftReal->value(), rightReal->value())));
+        }
+    }
+    throw std::runtime_error("Invalid operand types for Min function");
 }
+
 
 // Pow function implementation
 Operand::pointer_type Pow::evaluate(std::vector<Operand::pointer_type> const& operands) const {
@@ -162,4 +214,24 @@ Operand::pointer_type Arctan2::evaluate(std::vector<Operand::pointer_type> const
     auto y = std::dynamic_pointer_cast<Real>(operands[0])->value();
     auto x = std::dynamic_pointer_cast<Real>(operands[1])->value();
     return std::make_shared<Real>(boost::multiprecision::atan2(y, x));
+}
+
+Operand::pointer_type Result::evaluate(std::vector<Operand::pointer_type> const& operands) const {
+    // Ensure exactly one operand is passed
+    if (operands.size() != 1) {
+        throw std::runtime_error("Error: Result function requires exactly one argument.");
+    }
+
+    // Get the index as an integer
+    auto indexOperand = std::dynamic_pointer_cast<Integer>(operands[0]);
+    if (!indexOperand) {
+        throw std::runtime_error("Error: Result index must be an integer.");
+    }
+    auto index = static_cast<size_t>(indexOperand->value());
+
+    // Retrieve the result by index
+    // Assuming an instance of ExpressionEvaluator is accessible for retrieving previous results
+    // Update this logic if necessary based on how ExpressionEvaluator is managed in your project
+
+    throw std::runtime_error("Error: Cannot retrieve previous results without access to ExpressionEvaluator.");
 }

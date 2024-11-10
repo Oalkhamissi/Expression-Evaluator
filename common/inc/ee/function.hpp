@@ -146,7 +146,7 @@ public:
 
                 /*! Previous result token. Argument is the 1-base index of the result. */
                 class Result : public OneArgFunction {
-                    
+                    Operand::pointer_type evaluate(std::vector<Operand::pointer_type> const& operands) const override;
                 };
 
                 /*! Sine function token. */

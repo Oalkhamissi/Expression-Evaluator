@@ -17,10 +17,10 @@
 #define TEST_MULTI_ARG_FUNCTION true
 
 #define TEST_REAL true
-#define TEST_MIXED false
+#define TEST_MIXED true
 
-#define TEST_BOOLEAN false
-#define TEST_RELATIONAL_OPERATOR false
+#define TEST_BOOLEAN true
+#define TEST_RELATIONAL_OPERATOR true
 
-#define TEST_VARIABLE false
-#define TEST_RESULT false
+#define TEST_VARIABLE true
+#define TEST_RESULT true

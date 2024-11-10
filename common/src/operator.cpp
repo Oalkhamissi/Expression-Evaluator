@@ -42,6 +42,7 @@ the program(s) have been supplied.
 
 #include <ee/operator.hpp>
 #include <ee/operand.hpp>
+#include <ee/boolean.hpp>
 #include <ee/integer.hpp>
 #include <ee/real.hpp>
 #include <ee/variable.hpp>
@@ -54,37 +55,129 @@ the program(s) have been supplied.
 // Addition Operator
 Operand::pointer_type Addition::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2);
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    return std::static_pointer_cast<Operand>(make<Integer>(lhs->value() + rhs->value()));
+
+    auto left = operands[0];
+    auto right = operands[1];
+
+    if (auto leftInt = std::dynamic_pointer_cast<Integer>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Integer + Integer -> Integer
+            return std::static_pointer_cast<Operand>(make<Integer>(leftInt->value() + rightInt->value()));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Integer + Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(Real::value_type(leftInt->value()) + rightReal->value()));
+        }
+    }
+    else if (auto leftReal = std::dynamic_pointer_cast<Real>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Real + Integer -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() + Real::value_type(rightInt->value())));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Real + Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() + rightReal->value()));
+        }
+    }
+    throw std::runtime_error("Invalid operand types for addition");
 }
 
 // Subtraction Operator
 Operand::pointer_type Subtraction::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2);  // Ensure exactly two operands
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    return std::static_pointer_cast<Operand>(make<Integer>(lhs->value() - rhs->value()));
+    assert(operands.size() == 2);
+
+    auto left = operands[0];
+    auto right = operands[1];
+
+    if (auto leftInt = std::dynamic_pointer_cast<Integer>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Integer - Integer -> Integer
+            return std::static_pointer_cast<Operand>(make<Integer>(leftInt->value() - rightInt->value()));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Integer - Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(Real::value_type(leftInt->value()) - rightReal->value()));
+        }
+    }
+    else if (auto leftReal = std::dynamic_pointer_cast<Real>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Real - Integer -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() - Real::value_type(rightInt->value())));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Real - Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() - rightReal->value()));
+        }
+    }
+    throw std::runtime_error("Invalid operand types for subtraction");
 }
 
 // Multiplication Operator
 Operand::pointer_type Multiplication::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2);  // Ensure exactly two operands
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    return std::static_pointer_cast<Operand>(make<Integer>(lhs->value() * rhs->value()));
+    assert(operands.size() == 2);
+
+    auto left = operands[0];
+    auto right = operands[1];
+
+    if (auto leftInt = std::dynamic_pointer_cast<Integer>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Integer * Integer -> Integer
+            return std::static_pointer_cast<Operand>(make<Integer>(leftInt->value() * rightInt->value()));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Integer * Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(Real::value_type(leftInt->value()) * rightReal->value()));
+        }
+    }
+    else if (auto leftReal = std::dynamic_pointer_cast<Real>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Real * Integer -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() * Real::value_type(rightInt->value())));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Real * Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() * rightReal->value()));
+        }
+    }
+    throw std::runtime_error("Invalid operand types for multiplication");
 }
 
 // Division Operator
 Operand::pointer_type Division::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2);  // Ensure exactly two operands
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    if (rhs->value() == 0) {
-        throw std::runtime_error("Division by zero");  // Handle division by zero
+    assert(operands.size() == 2);
+
+    auto left = operands[0];
+    auto right = operands[1];
+
+    // Check for division by zero
+    if ((std::dynamic_pointer_cast<Integer>(right) && std::dynamic_pointer_cast<Integer>(right)->value() == 0) ||
+        (std::dynamic_pointer_cast<Real>(right) && std::dynamic_pointer_cast<Real>(right)->value() == 0)) {
+        throw std::runtime_error("Division by zero");
     }
-    return std::static_pointer_cast<Operand>(make<Integer>(lhs->value() / rhs->value()));
+
+    if (auto leftInt = std::dynamic_pointer_cast<Integer>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Integer / Integer -> Integer
+            return std::static_pointer_cast<Operand>(make<Integer>(leftInt->value() / rightInt->value()));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Integer / Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(Real::value_type(leftInt->value()) / rightReal->value()));
+        }
+    }
+    else if (auto leftReal = std::dynamic_pointer_cast<Real>(left)) {
+        if (auto rightInt = std::dynamic_pointer_cast<Integer>(right)) {
+            // Real / Integer -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() / Real::value_type(rightInt->value())));
+        }
+        else if (auto rightReal = std::dynamic_pointer_cast<Real>(right)) {
+            // Real / Real -> Real
+            return std::static_pointer_cast<Operand>(make<Real>(leftReal->value() / rightReal->value()));
+        }
+    }
+    throw std::runtime_error("Invalid operand types for division");
 }
+
 
 // Factorial Operator
 Operand::pointer_type Factorial::evaluate(std::vector<Operand::pointer_type> const& operands) const {
@@ -113,62 +206,58 @@ Operand::pointer_type Negation::evaluate(std::vector<Operand::pointer_type> cons
 
 // Not Operator
 Operand::pointer_type Not::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 1);  // Not is a unary operator
-    auto operand = convert<Integer>(operands[0]);
-    return std::static_pointer_cast<Operand>(make<Integer>(!operand->value()));
+    assert(operands.size() == 1);
+    auto operand = std::dynamic_pointer_cast<Boolean>(operands[0]);
+    return std::make_shared<Boolean>(!operand->value());
 }
 
 // And Operator
 Operand::pointer_type And::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2); // Ensure exactly two operands for binary AND operation
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    return std::static_pointer_cast<Operand>(make<Integer>(lhs->value() && rhs->value()));
+    assert(operands.size() == 2);
+    auto lhs = std::dynamic_pointer_cast<Boolean>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Boolean>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() && rhs->value());
 }
 
 // Nand Operator
 Operand::pointer_type Nand::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2);
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    bool result = !(lhs->value() && rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    auto lhs = std::dynamic_pointer_cast<Boolean>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Boolean>(operands[1]);
+    return std::make_shared<Boolean>(!(lhs->value() && rhs->value()));
 }
 
 // Or Operator
 Operand::pointer_type Or::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2); // Ensure exactly two operands for binary OR operation
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    return std::static_pointer_cast<Operand>(make<Integer>(lhs->value() || rhs->value()));
+    assert(operands.size() == 2);
+    auto lhs = std::dynamic_pointer_cast<Boolean>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Boolean>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() || rhs->value());
 }
+
 // Nor Operator
 Operand::pointer_type Nor::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2);
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    bool result = !(lhs->value() || rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    auto lhs = std::dynamic_pointer_cast<Boolean>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Boolean>(operands[1]);
+    return std::make_shared<Boolean>(!(lhs->value() || rhs->value()));
 }
+
 // Xor Operator
 Operand::pointer_type Xor::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2); // Ensure exactly two operands for binary XOR operation
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-
-    // Perform XOR by converting each operand to a boolean value
-    bool result = (lhs->value() != 0) ^ (rhs->value() != 0);
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    assert(operands.size() == 2);
+    auto lhs = std::dynamic_pointer_cast<Boolean>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Boolean>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() != rhs->value());
 }
+
 // Xnor Operator
 Operand::pointer_type Xnor::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2);
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    bool result = !(lhs->value() ^ rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    auto lhs = std::dynamic_pointer_cast<Boolean>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Boolean>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() == rhs->value());
 }
-
 // Assignment Operator
 Operand::pointer_type Assignment::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2); // Ensure exactly two operands for assignment
@@ -190,68 +279,50 @@ Operand::pointer_type Assignment::evaluate(std::vector<Operand::pointer_type> co
 
 // Equality Operator
 Operand::pointer_type Equality::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2); // Ensure exactly two operands for equality comparison
-
-    // Convert both operands to Integer (or appropriate type)
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-
-    // Return true (1) if values are equal, false (0) otherwise
-    bool result = (lhs->value() == rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
-}
-
-// Greater Operator
-Operand::pointer_type Greater::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2); // Ensure exactly two operands for comparison
-
-    // Convert both operands to Integer
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-
-    // Perform the comparison
-    bool result = (lhs->value() > rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
-}
-
-// GreaterEqual Operator
-Operand::pointer_type GreaterEqual::evaluate(std::vector<Operand::pointer_type> const& operands) const {
-    assert(operands.size() == 2); // Ensure exactly two operands for comparison
-
-    // Convert both operands to Integer
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-
-    // Perform the greater-than-or-equal comparison
-    bool result = (lhs->value() >= rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    assert(operands.size() == 2);
+    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() == rhs->value());
 }
 
 // Inequality Operator
 Operand::pointer_type Inequality::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2);
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    bool result = (lhs->value() != rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() != rhs->value());
+}
+
+// Greater Operator
+Operand::pointer_type Greater::evaluate(std::vector<Operand::pointer_type> const& operands) const {
+    assert(operands.size() == 2);
+    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() > rhs->value());
+}
+
+// GreaterEqual Operator
+Operand::pointer_type GreaterEqual::evaluate(std::vector<Operand::pointer_type> const& operands) const {
+    assert(operands.size() == 2);
+    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() >= rhs->value());
 }
 
 // Less Operator
 Operand::pointer_type Less::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2);
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    bool result = (lhs->value() < rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() < rhs->value());
 }
 
 // LessEqual Operator
 Operand::pointer_type LessEqual::evaluate(std::vector<Operand::pointer_type> const& operands) const {
     assert(operands.size() == 2);
-    auto lhs = convert<Integer>(operands[0]);
-    auto rhs = convert<Integer>(operands[1]);
-    bool result = (lhs->value() <= rhs->value());
-    return std::static_pointer_cast<Operand>(make<Integer>(result ? 1 : 0));
+    auto lhs = std::dynamic_pointer_cast<Integer>(operands[0]);
+    auto rhs = std::dynamic_pointer_cast<Integer>(operands[1]);
+    return std::make_shared<Boolean>(lhs->value() <= rhs->value());
 }
 
 // Modulus Operator
