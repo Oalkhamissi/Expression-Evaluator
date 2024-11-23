@@ -59,15 +59,29 @@ using namespace std;
 
 
 MAKEAPP(ee) {
-	cout << "Expression Evaluator, (c) 1998-2024 Garth Santor\n";
-	for (unsigned count = 0; ; ++count) {
-		cout << "> ";
-		string command;
-		if (!getline(cin, command) || command.empty())
-			break;
+    cout << "Expression Evaluator, (c) 1998-2022 Garth Santor\n";
+    ExpressionEvaluator evaluator;
+    vector<Token::pointer_type> results;
 
-		cout << "[" << count << "] = " << 42 << endl;
-	}
+    for (unsigned count = 1; ; ++count) {
+        cout << "> ";
+        string command;
+        if (!getline(cin, command) || command.empty())
+            break;
 
-	return EXIT_SUCCESS;
+        try {
+            auto result = evaluator.evaluate(command);
+            results.push_back(result);
+
+            cout << "[" << count << "] = " << result->str() << endl;
+        }
+        catch (const std::exception& ex) {
+            cout << "Error: " << ex.what() << endl;
+        }
+        catch (...) {
+            cout << "Unknown error occurred!" << endl;
+        }
+    }
+
+    return EXIT_SUCCESS;
 }
