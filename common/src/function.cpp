@@ -230,8 +230,5 @@ Operand::pointer_type Result::evaluate(std::vector<Operand::pointer_type> const&
     auto index = static_cast<size_t>(indexOperand->value());
 
     // Retrieve the result by index
-    // Assuming an instance of ExpressionEvaluator is accessible for retrieving previous results
-    // Update this logic if necessary based on how ExpressionEvaluator is managed in your project
-
     throw std::runtime_error("Error: Cannot retrieve previous results without access to ExpressionEvaluator.");
 }
